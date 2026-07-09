@@ -1852,7 +1852,7 @@ function App() {
                 {Object.keys(remoteStreams).map(socketId => renderRemoteVideoFrame(socketId, false))}
               </div>
             )
-          )}}
+          )}
 
         </section>
 
