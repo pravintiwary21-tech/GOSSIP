@@ -143,8 +143,8 @@ body::after {
 
 /* Scrollbars */
 ::-webkit-scrollbar {
-  width: 12px; /* Increased width */
-  height: 12px; /* Increased height */
+  width: 12px; /* Increased from 8px */
+  height: 12px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -152,7 +152,7 @@ body::after {
 ::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
   border-radius: 99px;
-  border: 4px solid var(--bg-primary); /* Increased border spacing to decrease the visible thumb size */
+  border: 3px solid var(--bg-primary);
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-blue);
@@ -1768,11 +1768,11 @@ body::after {
   border: 3px solid var(--border-color);
   border-radius: 16px;
   padding: 12px;
-  width: 280px;
-  max-height: 250px;
+  width: 320px; /* Increased width from 280px */
+  max-height: 180px; /* Decreased height from 250px */
   overflow-y: auto;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(8, 1fr); /* 8 columns instead of 6 */
   gap: 8px;
   box-shadow: var(--shadow-card);
   z-index: 100;
@@ -2236,8 +2236,7 @@ body::after {
   height: 100vh;
   z-index: -2; /* Sits behind body blobs and cards */
   pointer-events: none; /* Let clicks pass through */
-  opacity: 1;
-  transition: opacity 0.5s ease-in-out;
+  opacity: 1; /* Always visible for Globe/Fog effects */
 }
 
 
