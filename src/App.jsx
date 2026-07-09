@@ -24,7 +24,9 @@ import {
   Linkedin,
   Maximize2,
   Minimize2,
-  Pin
+  Pin,
+  MoreVertical,
+  Grid
 } from 'lucide-react';
 
 // Custom GOSSIP Logo SVG Component
@@ -53,50 +55,74 @@ const AVAILABLE_BGS = [
   'linear-gradient(135deg, #f97316, #c2410c)'  // Orange
 ];
 
-const WHATSAPP_EMOJI_MAP = {
-  '😂': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f602.png',
-  '😍': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f60d.png',
-  '😭': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f62d.png',
-  '👍': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f44d.png',
-  '🔥': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f525.png',
-  '🎉': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f389.png',
-  '👏': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f44f.png',
-  '❤️': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/2764.png',
-  '✨': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/2728.png',
-  '😎': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f60e.png',
-  '🙌': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f64c.png',
-  '🤔': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f914.png',
-  '🚀': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f680.png',
-  '😮': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f62e.png',
-  '👀': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f440.png',
-  '💯': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f4af.png',
-  '🎂': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f382.png',
-  '🥳': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f973.png',
-  '💥': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f4a5.png'
+const getEmojiHex = (emoji) => {
+  const codePoints = [];
+  let i = 0;
+  while (i < emoji.length) {
+    const codePoint = emoji.codePointAt(i);
+    codePoints.push(codePoint.toString(16));
+    i += codePoint > 0xffff ? 2 : 1;
+  }
+  return codePoints.filter(cp => cp !== 'fe0f').join('-');
+};
+
+const WhatsAppEmojiInline = ({ emoji, isFloating = false }) => {
+  const [failed, setFailed] = useState(false);
+  const hex = getEmojiHex(emoji);
+  const url = `https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/${hex}.png`;
+
+  if (failed) {
+    return <span className={isFloating ? 'whatsapp-emoji-floating' : ''}>{emoji}</span>;
+  }
+
+  return (
+    <img
+      src={url}
+      alt={emoji}
+      className={isFloating ? 'whatsapp-emoji-floating' : 'whatsapp-emoji-inline'}
+      onError={() => setFailed(true)}
+    />
+  );
 };
 
 const renderFormattedMessage = (text) => {
   if (!text) return '';
-  const emojiKeys = Object.keys(WHATSAPP_EMOJI_MAP);
-  const sortedKeys = emojiKeys.sort((a, b) => b.length - a.length);
-  const regexPattern = sortedKeys.map(k => k.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')).join('|');
-  const regex = new RegExp(`(${regexPattern})`, 'g');
-  
+  const regex = /(\p{Extended_Pictographic})/gu;
   const parts = text.split(regex);
   return parts.map((part, index) => {
-    if (WHATSAPP_EMOJI_MAP[part]) {
-      return (
-        <img
-          key={index}
-          src={WHATSAPP_EMOJI_MAP[part]}
-          alt={part}
-          className="whatsapp-emoji-inline"
-        />
-      );
+    if (part.match(/\p{Extended_Pictographic}/u)) {
+      return <WhatsAppEmojiInline key={index} emoji={part} />;
     }
     return part;
   });
 };
+
+const WHATSAPP_PICKER_EMOJIS = [
+  '😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣',
+  '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰',
+  '😘', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐',
+  '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔',
+  '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩',
+  '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯',
+  '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓',
+  '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑',
+  '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱',
+  '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮',
+  '🤧', '😷', '🤒', '🤕', '😈', '👿', '👹', '👺',
+  '💀', '☠️', '👻', '👽', '👾', '🤖', '💩', '🤡',
+  '👍', '👎', '👊', '✊', '🤛', '🤜', '🤞', '✌️',
+  '🤟', '🤘', '👌', '👈', '👉', '👆', '👇', '☝️',
+  '✋', '🤚', '🖐️', '🖖', '👋', '🤙', '💪', '🙏',
+  '👏', '🙌', '🤝', '💅', '🤳', '✍️', '🗣️', '👤',
+  '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍',
+  '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖',
+  '💘', '💝', '💟', '💯', '💢', '💥', '💫', '💦',
+  '💨', '💣', '💬', '💭', '💤', '🔥', '✨', '🌟',
+  '⭐', '🎈', '🎉', '🎊', '🎂', '🚀', '🛸', '🎮',
+  '🎲', '👑', '💎', '💍', '📢', '🎯', '👀', '🥳',
+  '🍻', '🍕', '🍟', '🍩', '🥑', '🌈', '☀️', '🐱',
+  '🐶', '🦁', '🐸', '🐵', '🌹', '🌴', '🍁', '🍀'
+];
 
 function App() {
   // Lobby Navigation & Room Settings
@@ -125,6 +151,8 @@ function App() {
   // Pinning and Fullscreen Video Call States
   const [pinnedUser, setPinnedUser] = useState(null); // null | 'me' | socketId
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [videoLayout, setVideoLayout] = useState('sidebar'); // 'sidebar' | 'spotlight'
+  const [forceFullscreenControls, setForceFullscreenControls] = useState(false);
   const stageRef = useRef(null);
 
   // Active Directory for Public Rooms
@@ -1638,7 +1666,16 @@ function App() {
       </aside>
 
       {/* Center stage area */}
-      <main className="room-stage" ref={stageRef}>
+      <main className={`room-stage ${isFullscreen ? 'fullscreen-active' : ''} ${forceFullscreenControls ? 'controls-forced' : ''}`} ref={stageRef}>
+        {isFullscreen && (
+          <button
+            onClick={() => setForceFullscreenControls(prev => !prev)}
+            className={`fullscreen-options-toggle ${forceFullscreenControls ? 'active' : ''}`}
+            title="Toggle Controls Panel"
+          >
+            <MoreVertical size={20} />
+          </button>
+        )}
         <header className="stage-header">
           <div className="mode-badge">
             {roomMode === 'chat' && <MessageSquare size={16} />}
@@ -1726,7 +1763,7 @@ function App() {
                   </button>
                   {showEmojiPicker === 'stage' && (
                     <div className="chat-emoji-picker-popup" style={{ right: 'auto', left: 0 }}>
-                      {['😂', '😍', '😭', '👍', '🔥', '🎉', '👏', '❤️', '✨', '😎', '🙌', '🤔', '🚀', '😮', '👀', '💯', '🎂', '🥳', '💥', '👀'].map(emoji => (
+                      {WHATSAPP_PICKER_EMOJIS.map(emoji => (
                         <div
                           key={emoji}
                           onClick={() => {
@@ -1736,7 +1773,7 @@ function App() {
                           className="chat-emoji-option"
                           title={emoji}
                         >
-                          <img src={WHATSAPP_EMOJI_MAP[emoji]} alt={emoji} />
+                          <WhatsAppEmojiInline emoji={emoji} />
                         </div>
                       ))}
                     </div>
@@ -1830,22 +1867,34 @@ function App() {
           {/* Video Call View */}
           {roomMode === 'video' && (
             pinnedUser ? (
-              <div className="video-grid-container pinned-active">
-                <div className="pinned-video-main">
-                  {pinnedUser === 'me' ? (
-                    renderLocalVideoFrame(true)
-                  ) : (
-                    renderRemoteVideoFrame(pinnedUser, true)
-                  )}
+              videoLayout === 'spotlight' ? (
+                <div className="video-grid-container spotlight-active">
+                  <div className="pinned-video-main spotlight-only">
+                    {pinnedUser === 'me' ? (
+                      renderLocalVideoFrame(true)
+                    ) : (
+                      renderRemoteVideoFrame(pinnedUser, true)
+                    )}
+                  </div>
                 </div>
-                <div className="pinned-video-strip">
-                  {pinnedUser !== 'me' && renderLocalVideoFrame(false)}
-                  {Object.keys(remoteStreams).map(socketId => {
-                    if (pinnedUser === socketId) return null;
-                    return renderRemoteVideoFrame(socketId, false);
-                  })}
+              ) : (
+                <div className="video-grid-container pinned-active">
+                  <div className="pinned-video-main">
+                    {pinnedUser === 'me' ? (
+                      renderLocalVideoFrame(true)
+                    ) : (
+                      renderRemoteVideoFrame(pinnedUser, true)
+                    )}
+                  </div>
+                  <div className="pinned-video-strip">
+                    {pinnedUser !== 'me' && renderLocalVideoFrame(false)}
+                    {Object.keys(remoteStreams).map(socketId => {
+                      if (pinnedUser === socketId) return null;
+                      return renderRemoteVideoFrame(socketId, false);
+                    })}
+                  </div>
                 </div>
-              </div>
+              )
             ) : (
               <div className={`video-grid-container peers-${Object.keys(remoteStreams).length}`}>
                 {renderLocalVideoFrame(false)}
@@ -1866,7 +1915,7 @@ function App() {
                 className="reaction-trigger-btn"
                 title={`Send ${emoji} Reaction`}
               >
-                <img src={WHATSAPP_EMOJI_MAP[emoji]} alt={emoji} />
+                <WhatsAppEmojiInline emoji={emoji} />
               </button>
             ))}
           </div>
@@ -1888,13 +1937,26 @@ function App() {
 
               {/* Video Toggle Button (only for Video mode) */}
               {roomMode === 'video' && (
-                <button
-                  onClick={toggleCamera}
-                  className={`control-btn ${cameraOff ? 'muted' : 'active'}`}
-                  title={cameraOff ? "Turn Camera On" : "Turn Camera Off"}
-                >
-                  {cameraOff ? <VideoOff size={20} /> : <Video size={20} />}
-                </button>
+                <>
+                  <button
+                    onClick={toggleCamera}
+                    className={`control-btn ${cameraOff ? 'muted' : 'active'}`}
+                    title={cameraOff ? "Turn Camera On" : "Turn Camera Off"}
+                  >
+                    {cameraOff ? <VideoOff size={20} /> : <Video size={20} />}
+                  </button>
+
+                  {/* Google Meet style Layout arrangement Switcher (when someone is pinned) */}
+                  {pinnedUser && (
+                    <button
+                      onClick={() => setVideoLayout(prev => prev === 'sidebar' ? 'spotlight' : 'sidebar')}
+                      className={`control-btn ${videoLayout === 'spotlight' ? 'active' : ''}`}
+                      title={videoLayout === 'sidebar' ? "Switch to Spotlight View (Google Meet)" : "Switch to Sidebar View (Google Meet)"}
+                    >
+                      {videoLayout === 'sidebar' ? <Tv size={20} /> : <Grid size={20} />}
+                    </button>
+                  )}
+                </>
               )}
             </>
           )}
@@ -1993,7 +2055,7 @@ function App() {
               </button>
               {showEmojiPicker === 'drawer' && (
                 <div className="chat-emoji-picker-popup">
-                  {['😂', '😍', '😭', '👍', '🔥', '🎉', '👏', '❤️', '✨', '😎', '🙌', '🤔', '🚀', '😮', '👀', '💯', '🎂', '🥳', '💥', '👀'].map(emoji => (
+                  {WHATSAPP_PICKER_EMOJIS.map(emoji => (
                     <div
                       key={emoji}
                       onClick={() => {
@@ -2003,7 +2065,7 @@ function App() {
                       className="chat-emoji-option"
                       title={emoji}
                     >
-                      <img src={WHATSAPP_EMOJI_MAP[emoji]} alt={emoji} />
+                      <WhatsAppEmojiInline emoji={emoji} />
                     </div>
                   ))}
                 </div>
