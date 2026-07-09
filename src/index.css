@@ -1960,6 +1960,8 @@ body::after {
 
 /* Lobby Footer Styling */
 .lobby-footer {
+  position: relative;
+  z-index: 1;
   margin-top: 28px;
   display: flex;
   flex-direction: column;
