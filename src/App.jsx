@@ -988,15 +988,6 @@ function App() {
           <Pin size={14} style={{ transform: pinnedUser === 'me' ? 'none' : 'rotate(45deg)' }} />
         </button>
 
-        <button
-          type="button"
-          onClick={toggleFullscreen}
-          className="video-fullscreen-corner-btn"
-          title="Toggle Fullscreen Mode"
-        >
-          {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-        </button>
-
         {cameraOff ? (
           <div className="video-placeholder">
             <div className="placeholder-avatar" style={{ background: myAvatar.bg, color: 'white', overflow: 'hidden' }}>
@@ -1080,14 +1071,7 @@ function App() {
           <Pin size={14} style={{ transform: pinnedUser === socketId ? 'none' : 'rotate(45deg)' }} />
         </button>
 
-        <button
-          type="button"
-          onClick={toggleFullscreen}
-          className="video-fullscreen-corner-btn"
-          title="Toggle Fullscreen Mode"
-        >
-          {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-        </button>
+
 
         {!stream || !hasVideo ? (
           <div className="video-placeholder">
@@ -2032,6 +2016,17 @@ function App() {
               <span>Moderated Room Call</span>
             </div>
           )}
+
+          {/* Fullscreen Toggle Button */}
+          <button
+            onClick={toggleFullscreen}
+            className="btn btn-secondary control-btn-fullscreen"
+            style={{ height: '46px', padding: '0 16px', borderRadius: '14px', marginRight: '8px' }}
+            title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+          >
+            {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+            <span>Fullscreen</span>
+          </button>
 
           {/* Leave Room Button */}
           <button onClick={leaveRoom} className="btn btn-danger control-btn-leave">

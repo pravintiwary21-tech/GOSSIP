@@ -1615,8 +1615,9 @@ body::after {
 }
 
 .user-badge.cohost {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  background: #6366f1;
+  color: white;
+  border: 1.5px solid var(--border-color);
 }
 
 /* Admin Sidebar Actions */
@@ -2215,8 +2216,8 @@ body::after {
   padding: 6px 12px;
 }
 
-/* Hide Co-host tag on hover so action options do not overlap it */
-.participant-item:hover .user-badge {
+/* Hide Co-host tag on hover so action options do not overlap it, only if actions container exists */
+.participant-item:hover:has(.participant-actions-container) .user-badge {
   display: none !important;
 }
 
