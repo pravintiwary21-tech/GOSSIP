@@ -18,7 +18,13 @@ import {
   VolumeX,
   Sun,
   Moon,
-  Smile
+  Smile,
+  Github,
+  Instagram,
+  Linkedin,
+  Maximize2,
+  Minimize2,
+  Pin
 } from 'lucide-react';
 
 // Custom GOSSIP Logo SVG Component
@@ -47,6 +53,51 @@ const AVAILABLE_BGS = [
   'linear-gradient(135deg, #f97316, #c2410c)'  // Orange
 ];
 
+const WHATSAPP_EMOJI_MAP = {
+  '😂': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f602.png',
+  '😍': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f60d.png',
+  '😭': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f62d.png',
+  '👍': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f44d.png',
+  '🔥': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f525.png',
+  '🎉': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f389.png',
+  '👏': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f44f.png',
+  '❤️': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/2764.png',
+  '✨': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/2728.png',
+  '😎': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f60e.png',
+  '🙌': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f64c.png',
+  '🤔': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f914.png',
+  '🚀': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f680.png',
+  '😮': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f62e.png',
+  '👀': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f440.png',
+  '💯': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f4af.png',
+  '🎂': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f382.png',
+  '🥳': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f973.png',
+  '💥': 'https://cdn.jsdelivr.net/gh/realityripple/emoji/whatsapp/1f4a5.png'
+};
+
+const renderFormattedMessage = (text) => {
+  if (!text) return '';
+  const emojiKeys = Object.keys(WHATSAPP_EMOJI_MAP);
+  const sortedKeys = emojiKeys.sort((a, b) => b.length - a.length);
+  const regexPattern = sortedKeys.map(k => k.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')).join('|');
+  const regex = new RegExp(`(${regexPattern})`, 'g');
+  
+  const parts = text.split(regex);
+  return parts.map((part, index) => {
+    if (WHATSAPP_EMOJI_MAP[part]) {
+      return (
+        <img
+          key={index}
+          src={WHATSAPP_EMOJI_MAP[part]}
+          alt={part}
+          className="whatsapp-emoji-inline"
+        />
+      );
+    }
+    return part;
+  });
+};
+
 function App() {
   // Lobby Navigation & Room Settings
   const [lobbyTab, setLobbyTab] = useState('create'); // 'create' | 'join'
@@ -70,6 +121,11 @@ function App() {
   // Reactions & Emojis States
   const [remoteReactions, setRemoteReactions] = useState({});
   const [showEmojiPicker, setShowEmojiPicker] = useState(false); // false | 'stage' | 'drawer'
+
+  // Pinning and Fullscreen Video Call States
+  const [pinnedUser, setPinnedUser] = useState(null); // null | 'me' | socketId
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const stageRef = useRef(null);
 
   // Active Directory for Public Rooms
   const [publicRooms, setPublicRooms] = useState([]);
@@ -207,6 +263,17 @@ function App() {
       if (animationId) cancelAnimationFrame(animationId);
     };
   }, [roomMode, micMuted, remoteStreams]);
+
+  // Fullscreen change listener to sync state (e.g. if user presses ESC)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
 
   // Theme toggle helper
   const toggleTheme = () => {
@@ -833,6 +900,178 @@ function App() {
     }
   };
 
+  // Toggle fullscreen mode
+  const toggleFullscreen = () => {
+    if (!stageRef.current) return;
+    if (!document.fullscreenElement) {
+      stageRef.current.requestFullscreen().then(() => {
+        setIsFullscreen(true);
+      }).catch(err => {
+        console.error("Error enabling fullscreen:", err);
+      });
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  // Toggle pinned participant
+  const handleTogglePin = (id) => {
+    setPinnedUser(prev => prev === id ? null : id);
+  };
+
+  // Render modular local video frame
+  const renderLocalVideoFrame = (isPinned = false) => {
+    return (
+      <div className={`video-frame ${speakingUsers['me'] ? 'speaking' : ''} ${isPinned ? 'pinned-frame' : ''}`}>
+        <div className="floating-reactions-container">
+          {(remoteReactions[socketRef.current?.id] || []).map(r => (
+            <span key={r.id} className="floating-reaction">
+              {WHATSAPP_EMOJI_MAP[r.emoji] ? (
+                <img src={WHATSAPP_EMOJI_MAP[r.emoji]} alt={r.emoji} className="whatsapp-emoji-floating" />
+              ) : (
+                r.emoji
+              )}
+            </span>
+          ))}
+        </div>
+        
+        <button
+          type="button"
+          onClick={() => handleTogglePin('me')}
+          className={`video-pin-btn ${pinnedUser === 'me' ? 'pinned' : ''}`}
+          title={pinnedUser === 'me' ? "Unpin Video" : "Pin Video"}
+        >
+          <Pin size={14} style={{ transform: pinnedUser === 'me' ? 'none' : 'rotate(45deg)' }} />
+        </button>
+
+        {cameraOff ? (
+          <div className="video-placeholder">
+            <div className="placeholder-avatar" style={{ background: myAvatar.bg, color: 'white', overflow: 'hidden' }}>
+              {myAvatar.image ? (
+                <img src={myAvatar.image} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                myAvatar.emoji
+              )}
+            </div>
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 500, color: 'var(--text-secondary)' }}>Camera Off</span>
+          </div>
+        ) : (
+          localStream && (
+            <video
+              className="video-element"
+              ref={(el) => {
+                if (el && el.srcObject !== localStream) {
+                  el.srcObject = localStream;
+                }
+              }}
+              autoPlay
+              playsInline
+              muted
+            />
+          )
+        )}
+        <div className="video-overlay" style={{ pointerEvents: 'auto' }}>
+          <span
+            className="video-username-badge"
+            onClick={() => {
+              setEditName(username);
+              setEditEmoji(myAvatar.emoji);
+              setEditBg(myAvatar.bg);
+              setShowProfileEditor(true);
+            }}
+            style={{ cursor: 'pointer' }}
+            title="Click to edit profile"
+          >
+            {username} (You)
+          </span>
+          <div className="video-status-icons">
+            {micMuted && (
+              <div className="status-icon-badge off">
+                <MicOff size={14} />
+              </div>
+            )}
+            {cameraOff && (
+              <div className="status-icon-badge off">
+                <VideoOff size={14} />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Render modular remote video frame
+  const renderRemoteVideoFrame = (socketId, isPinned = false) => {
+    const p = participants[socketId];
+    if (!p) return null;
+    const stream = remoteStreams[socketId];
+    const hasVideo = stream && stream.getVideoTracks().length > 0;
+    
+    return (
+      <div key={socketId} className={`video-frame ${speakingUsers[socketId] ? 'speaking' : ''} ${isPinned ? 'pinned-frame' : ''}`}>
+        <div className="floating-reactions-container">
+          {(remoteReactions[socketId] || []).map(r => (
+            <span key={r.id} className="floating-reaction">
+              {WHATSAPP_EMOJI_MAP[r.emoji] ? (
+                <img src={WHATSAPP_EMOJI_MAP[r.emoji]} alt={r.emoji} className="whatsapp-emoji-floating" />
+              ) : (
+                r.emoji
+              )}
+            </span>
+          ))}
+        </div>
+        
+        <button
+          type="button"
+          onClick={() => handleTogglePin(socketId)}
+          className={`video-pin-btn ${pinnedUser === socketId ? 'pinned' : ''}`}
+          title={pinnedUser === socketId ? "Unpin Video" : "Pin Video"}
+        >
+          <Pin size={14} style={{ transform: pinnedUser === socketId ? 'none' : 'rotate(45deg)' }} />
+        </button>
+
+        {!stream || !hasVideo ? (
+          <div className="video-placeholder">
+            <div className="placeholder-avatar" style={{ background: p.avatar?.bg || 'var(--bg-secondary)', overflow: 'hidden' }}>
+              {p.avatar?.image ? (
+                <img src={p.avatar.image} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                p.avatar?.emoji || '🐼'
+              )}
+            </div>
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 500, color: 'var(--text-secondary)' }}>
+              {!stream ? 'Connecting...' : 'Camera Off'}
+            </span>
+          </div>
+        ) : null}
+
+        {stream && (
+          <video
+            className="video-element remote"
+            style={{ display: hasVideo ? 'block' : 'none' }}
+            ref={(el) => {
+              if (el && el.srcObject !== stream) {
+                el.srcObject = stream;
+              }
+            }}
+            autoPlay
+            playsInline
+          />
+        )}
+
+        <div className="video-overlay">
+          <span className="video-username-badge">
+            {p.username}
+            {p.isHost && <span className="user-badge host">Host</span>}
+            {p.isCoHost && <span className="user-badge cohost">Co-host</span>}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
   // Disconnect socket clean helper
   const disconnectSocket = () => {
     if (socketRef.current) {
@@ -842,6 +1081,7 @@ function App() {
     setJoinRequestStatus('none');
     setPendingRequests([]);
     setRemoteReactions({});
+    setPinnedUser(null);
   };
 
   // Exit Room
@@ -861,6 +1101,7 @@ function App() {
     setMicMuted(false);
     setCameraOff(false);
     setRemoteReactions({});
+    setPinnedUser(null);
 
     // Clean query parameters
     const currentUrl = new URL(window.location.href);
@@ -1147,6 +1388,20 @@ function App() {
             </button>
           </form>
         </div>
+        <footer className="lobby-footer">
+          <p className="made-by-text">Made By Pravin</p>
+          <div className="social-links-row">
+            <a href="https://github.com/pravintiwary21-tech" target="_blank" rel="noopener noreferrer" title="GitHub" className="social-icon-link">
+              <Github size={20} />
+            </a>
+            <a href="https://www.instagram.com/pravin_x" target="_blank" rel="noopener noreferrer" title="Instagram" className="social-icon-link">
+              <Instagram size={20} />
+            </a>
+            <a href="https://www.linkedin.com/in/pravin-kumar-tiwary-ab15a636b" target="_blank" rel="noopener noreferrer" title="LinkedIn" className="social-icon-link">
+              <Linkedin size={20} />
+            </a>
+          </div>
+        </footer>
       </div>
     );
   }
@@ -1383,7 +1638,7 @@ function App() {
       </aside>
 
       {/* Center stage area */}
-      <main className="room-stage">
+      <main className="room-stage" ref={stageRef}>
         <header className="stage-header">
           <div className="mode-badge">
             {roomMode === 'chat' && <MessageSquare size={16} />}
@@ -1402,6 +1657,17 @@ function App() {
               style={{ width: '40px', height: '40px' }}
             >
               {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
+
+            {/* Fullscreen Toggle Button */}
+            <button
+              onClick={toggleFullscreen}
+              className="theme-btn"
+              type="button"
+              title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+              style={{ width: '40px', height: '40px', borderRadius: '50%' }}
+            >
+              {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
             </button>
 
             {/* Toggle Chat Drawer Button */}
@@ -1442,7 +1708,7 @@ function App() {
                           <span className="message-time">{msg.timestamp}</span>
                         </div>
                       )}
-                      <div className="message-text">{msg.text}</div>
+                      <div className="message-text">{renderFormattedMessage(msg.text)}</div>
                     </div>
                   ))
                 )}
@@ -1468,8 +1734,9 @@ function App() {
                             setShowEmojiPicker(false);
                           }}
                           className="chat-emoji-option"
+                          title={emoji}
                         >
-                          {emoji}
+                          <img src={WHATSAPP_EMOJI_MAP[emoji]} alt={emoji} />
                         </div>
                       ))}
                     </div>
@@ -1562,128 +1829,30 @@ function App() {
 
           {/* Video Call View */}
           {roomMode === 'video' && (
-            <div className={`video-grid-container peers-${Object.keys(remoteStreams).length}`}>
-              
-              {/* Local Video Frame */}
-              <div
-                className={`video-frame ${speakingUsers['me'] ? 'speaking' : ''}`}
-                onClick={() => {
-                  // Only trigger modal when clicking overlay, not the video body
-                }}
-              >
-                <div className="floating-reactions-container">
-                  {(remoteReactions[socketRef.current?.id] || []).map(r => (
-                    <span key={r.id} className="floating-reaction">{r.emoji}</span>
-                  ))}
+            pinnedUser ? (
+              <div className="video-grid-container pinned-active">
+                <div className="pinned-video-main">
+                  {pinnedUser === 'me' ? (
+                    renderLocalVideoFrame(true)
+                  ) : (
+                    renderRemoteVideoFrame(pinnedUser, true)
+                  )}
                 </div>
-                {cameraOff ? (
-                  <div className="video-placeholder">
-                    <div className="placeholder-avatar" style={{ background: myAvatar.bg, color: 'white', overflow: 'hidden' }}>
-                      {myAvatar.image ? (
-                        <img src={myAvatar.image} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        myAvatar.emoji
-                      )}
-                    </div>
-                    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 500, color: 'var(--text-secondary)' }}>Camera Off</span>
-                  </div>
-                ) : (
-                  localStream && (
-                    <video
-                      className="video-element"
-                      ref={(el) => {
-                        if (el && el.srcObject !== localStream) {
-                          el.srcObject = localStream;
-                        }
-                      }}
-                      autoPlay
-                      playsInline
-                      muted
-                    />
-                  )
-                )}
-                <div className="video-overlay" style={{ pointerEvents: 'auto' }}>
-                  <span
-                    className="video-username-badge"
-                    onClick={() => {
-                      setEditName(username);
-                      setEditEmoji(myAvatar.emoji);
-                      setEditBg(myAvatar.bg);
-                      setShowProfileEditor(true);
-                    }}
-                    style={{ cursor: 'pointer' }}
-                    title="Click to edit profile"
-                  >
-                    {username} (You)
-                  </span>
-                  <div className="video-status-icons">
-                    {micMuted && (
-                      <div className="status-icon-badge off">
-                        <MicOff size={14} />
-                      </div>
-                    )}
-                    {cameraOff && (
-                      <div className="status-icon-badge off">
-                        <VideoOff size={14} />
-                      </div>
-                    )}
-                  </div>
+                <div className="pinned-video-strip">
+                  {pinnedUser !== 'me' && renderLocalVideoFrame(false)}
+                  {Object.keys(remoteStreams).map(socketId => {
+                    if (pinnedUser === socketId) return null;
+                    return renderRemoteVideoFrame(socketId, false);
+                  })}
                 </div>
               </div>
-
-              {/* Remote Video Frames */}
-              {Object.entries(participants).map(([socketId, p]) => {
-                const stream = remoteStreams[socketId];
-                const hasVideo = stream && stream.getVideoTracks().length > 0;
-                
-                return (
-                  <div key={socketId} className={`video-frame ${speakingUsers[socketId] ? 'speaking' : ''}`}>
-                    <div className="floating-reactions-container">
-                      {(remoteReactions[socketId] || []).map(r => (
-                        <span key={r.id} className="floating-reaction">{r.emoji}</span>
-                      ))}
-                    </div>
-                    {!stream || !hasVideo ? (
-                      <div className="video-placeholder">
-                        <div className="placeholder-avatar" style={{ background: p.avatar?.bg || 'var(--bg-secondary)', overflow: 'hidden' }}>
-                          {p.avatar?.image ? (
-                            <img src={p.avatar.image} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          ) : (
-                            p.avatar?.emoji || '🐼'
-                          )}
-                        </div>
-                        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 500, color: 'var(--text-secondary)' }}>
-                          {!stream ? 'Connecting...' : 'Camera Off'}
-                        </span>
-                      </div>
-                    ) : null}
-
-                    {stream && (
-                      <video
-                        className="video-element remote"
-                        style={{ display: hasVideo ? 'block' : 'none' }}
-                        ref={(el) => {
-                          if (el && el.srcObject !== stream) {
-                            el.srcObject = stream;
-                          }
-                        }}
-                        autoPlay
-                        playsInline
-                      />
-                    )}
-
-                    <div className="video-overlay">
-                      <span className="video-username-badge">
-                        {p.username}
-                        {p.isHost && <span className="user-badge host">Host</span>}
-                        {p.isCoHost && <span className="user-badge cohost">Co-host</span>}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+            ) : (
+              <div className={`video-grid-container peers-${Object.keys(remoteStreams).length}`}>
+                {renderLocalVideoFrame(false)}
+                {Object.keys(remoteStreams).map(socketId => renderRemoteVideoFrame(socketId, false))}
+              </div>
+            )
+          )}}
 
         </section>
 
@@ -1697,7 +1866,7 @@ function App() {
                 className="reaction-trigger-btn"
                 title={`Send ${emoji} Reaction`}
               >
-                {emoji}
+                <img src={WHATSAPP_EMOJI_MAP[emoji]} alt={emoji} />
               </button>
             ))}
           </div>
@@ -1805,7 +1974,7 @@ function App() {
                       <span className="message-time">{msg.timestamp}</span>
                     </div>
                   )}
-                  <div className="message-text">{msg.text}</div>
+                  <div className="message-text">{renderFormattedMessage(msg.text)}</div>
                 </div>
               ))
             )}
@@ -1832,8 +2001,9 @@ function App() {
                         setShowEmojiPicker(false);
                       }}
                       className="chat-emoji-option"
+                      title={emoji}
                     >
-                      {emoji}
+                      <img src={WHATSAPP_EMOJI_MAP[emoji]} alt={emoji} />
                     </div>
                   ))}
                 </div>
