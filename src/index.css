@@ -79,7 +79,7 @@
 }
 
 body {
-  background-color: var(--bg-primary);
+  background-color: transparent; /* Allows Vanta backgrounds to be visible */
   color: var(--text-primary);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
@@ -2226,6 +2226,8 @@ body::after {
   position: relative;
   width: 100%;
   min-height: 100vh;
+  background-color: var(--bg-primary);
+  transition: background-color 0.4s;
 }
 
 .vanta-bg-overlay {
@@ -2234,7 +2236,7 @@ body::after {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -2; /* Sits behind body blobs and cards */
+  z-index: -1; /* Sits on top of wrapper background, behind cards */
   pointer-events: none; /* Let clicks pass through */
   opacity: 1; /* Always visible for Globe/Fog effects */
 }
