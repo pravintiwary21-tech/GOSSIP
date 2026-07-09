@@ -174,6 +174,51 @@ function App() {
   const [forceFullscreenControls, setForceFullscreenControls] = useState(false);
   const stageRef = useRef(null);
 
+  // Vanta.js 3D Globe Background Effect
+  const [vantaEffect, setVantaEffect] = useState(null);
+  const vantaRef = useRef(null);
+
+  useEffect(() => {
+    let effect = null;
+    if (theme === 'dark' && window.THREE && window.VANTA && window.VANTA.GLOBE && vantaRef.current) {
+      if (!vantaEffect) {
+        try {
+          effect = window.VANTA.GLOBE({
+            el: vantaRef.current,
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.0,
+            minWidth: 200.0,
+            scale: 1.0,
+            scaleMobile: 1.0,
+            color: 0xffffff,
+            color2: 0x6366f1,
+            size: 0.8,
+            spacing: 16.0,
+            points: 10.0,
+            maxDistance: 20.0,
+            showDots: true,
+            backgroundAlpha: 1.0,
+            backgroundColor: 0x070a13 // Sleek deep space dark mode background
+          });
+          setVantaEffect(effect);
+        } catch (err) {
+          console.error("Vanta initialization failed:", err);
+        }
+      }
+    }
+    return () => {
+      if (effect) {
+        effect.destroy();
+      }
+      if (vantaEffect) {
+        vantaEffect.destroy();
+        setVantaEffect(null);
+      }
+    };
+  }, [theme]);
+
   // Active Directory for Public Rooms
   const [publicRooms, setPublicRooms] = useState([]);
   const lobbySocketRef = useRef(null);
@@ -1159,7 +1204,9 @@ function App() {
   // Render Lobby screen
   if (screen === 'lobby') {
     return (
-      <div className="welcome-screen">
+      <div className={`global-app-wrapper ${theme === 'dark' ? 'dark-active' : ''}`}>
+        <div ref={vantaRef} className="vanta-bg-overlay" />
+        <div className="welcome-screen">
         
         {/* Waiting Room Overlay */}
         {joinRequestStatus === 'pending' && (
@@ -1443,13 +1490,16 @@ function App() {
             </a>
           </div>
         </footer>
+        </div>
       </div>
     );
   }
 
   // Render Room screen
   return (
-    <div className={`app-container room-container ${showChat ? '' : 'chat-collapsed'}`}>
+    <div className={`global-app-wrapper ${theme === 'dark' ? 'dark-active' : ''}`}>
+      <div ref={vantaRef} className="vanta-bg-overlay" />
+      <div className={`app-container room-container ${showChat ? '' : 'chat-collapsed'}`}>
       
       {/* Toast notifications */}
       {toast.visible && (
@@ -2131,6 +2181,7 @@ function App() {
         </aside>
       )}
 
+      </div>
     </div>
   );
 }

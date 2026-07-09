@@ -2221,4 +2221,27 @@ body::after {
   display: none !important;
 }
 
+/* Vanta.js 3D Globe Background Overlay styles */
+.global-app-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.vanta-bg-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2; /* Sits behind body blobs and cards */
+  pointer-events: none; /* Let clicks pass through */
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.global-app-wrapper.dark-active .vanta-bg-overlay {
+  opacity: 1;
+}
+
 
