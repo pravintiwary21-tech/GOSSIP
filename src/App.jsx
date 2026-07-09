@@ -121,8 +121,27 @@ const WHATSAPP_PICKER_EMOJIS = [
   '⭐', '🎈', '🎉', '🎊', '🎂', '🚀', '🛸', '🎮',
   '🎲', '👑', '💎', '💍', '📢', '🎯', '👀', '🥳',
   '🍻', '🍕', '🍟', '🍩', '🥑', '🌈', '☀️', '🐱',
-  '🐶', '🦁', '🐸', '🐵', '🌹', '🌴', '🍁', '🍀'
 ];
+
+const getSenderColor = (name) => {
+  if (!name) return 'var(--accent-blue)';
+  const colors = [
+    '#3b82f6', // Bright Blue
+    '#10b981', // Mint Emerald
+    '#f59e0b', // Amber/Orange
+    '#8b5cf6', // Violet
+    '#ec4899', // Pink
+    '#06b6d4', // Cyan
+    '#f97316', // Orange-Red
+    '#6366f1'  // Indigo
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
+};
 
 function App() {
   // Lobby Navigation & Room Settings
@@ -955,11 +974,7 @@ function App() {
         <div className="floating-reactions-container">
           {(remoteReactions[socketRef.current?.id] || []).map(r => (
             <span key={r.id} className="floating-reaction">
-              {WHATSAPP_EMOJI_MAP[r.emoji] ? (
-                <img src={WHATSAPP_EMOJI_MAP[r.emoji]} alt={r.emoji} className="whatsapp-emoji-floating" />
-              ) : (
-                r.emoji
-              )}
+              <WhatsAppEmojiInline emoji={r.emoji} isFloating={true} />
             </span>
           ))}
         </div>
@@ -971,6 +986,15 @@ function App() {
           title={pinnedUser === 'me' ? "Unpin Video" : "Pin Video"}
         >
           <Pin size={14} style={{ transform: pinnedUser === 'me' ? 'none' : 'rotate(45deg)' }} />
+        </button>
+
+        <button
+          type="button"
+          onClick={toggleFullscreen}
+          className="video-fullscreen-corner-btn"
+          title="Toggle Fullscreen Mode"
+        >
+          {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
         </button>
 
         {cameraOff ? (
@@ -1042,11 +1066,7 @@ function App() {
         <div className="floating-reactions-container">
           {(remoteReactions[socketId] || []).map(r => (
             <span key={r.id} className="floating-reaction">
-              {WHATSAPP_EMOJI_MAP[r.emoji] ? (
-                <img src={WHATSAPP_EMOJI_MAP[r.emoji]} alt={r.emoji} className="whatsapp-emoji-floating" />
-              ) : (
-                r.emoji
-              )}
+              <WhatsAppEmojiInline emoji={r.emoji} isFloating={true} />
             </span>
           ))}
         </div>
@@ -1058,6 +1078,15 @@ function App() {
           title={pinnedUser === socketId ? "Unpin Video" : "Pin Video"}
         >
           <Pin size={14} style={{ transform: pinnedUser === socketId ? 'none' : 'rotate(45deg)' }} />
+        </button>
+
+        <button
+          type="button"
+          onClick={toggleFullscreen}
+          className="video-fullscreen-corner-btn"
+          title="Toggle Fullscreen Mode"
+        >
+          {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
         </button>
 
         {!stream || !hasVideo ? (
@@ -1731,7 +1760,7 @@ function App() {
                   messages.map((msg) => (
                     <div
                       key={msg.id}
-                      className={`message-bubble ${
+                      className={`message-row ${
                         msg.senderId === 'system'
                           ? 'system'
                           : msg.senderId === socketRef.current?.id
@@ -1739,13 +1768,24 @@ function App() {
                           : 'incoming'
                       }`}
                     >
-                      {msg.senderId !== 'system' && (
-                        <div className="message-header">
-                          <span className="message-sender">{msg.senderName}</span>
-                          <span className="message-time">{msg.timestamp}</span>
+                      {msg.senderId !== 'system' && msg.senderId !== socketRef.current?.id && (
+                        <div className="message-avatar-circle" style={{ background: msg.senderAvatar?.bg || 'var(--bg-secondary)', overflow: 'hidden' }}>
+                          {msg.senderAvatar?.image ? (
+                            <img src={msg.senderAvatar.image} alt="Sender DP" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : (
+                            msg.senderAvatar?.emoji || '🐼'
+                          )}
                         </div>
                       )}
-                      <div className="message-text">{renderFormattedMessage(msg.text)}</div>
+                      <div className="message-bubble">
+                        {msg.senderId !== 'system' && (
+                          <div className="message-header">
+                            <span className="message-sender" style={{ color: getSenderColor(msg.senderName) }}>{msg.senderName}</span>
+                            <span className="message-time">{msg.timestamp}</span>
+                          </div>
+                        )}
+                        <div className="message-text">{renderFormattedMessage(msg.text)}</div>
+                      </div>
                     </div>
                   ))
                 )}
@@ -2022,7 +2062,7 @@ function App() {
               messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`message-bubble ${
+                  className={`message-row ${
                     msg.senderId === 'system'
                       ? 'system'
                       : msg.senderId === socketRef.current?.id
@@ -2030,13 +2070,24 @@ function App() {
                       : 'incoming'
                   }`}
                 >
-                  {msg.senderId !== 'system' && (
-                    <div className="message-header">
-                      <span className="message-sender">{msg.senderName}</span>
-                      <span className="message-time">{msg.timestamp}</span>
+                  {msg.senderId !== 'system' && msg.senderId !== socketRef.current?.id && (
+                    <div className="message-avatar-circle" style={{ background: msg.senderAvatar?.bg || 'var(--bg-secondary)', overflow: 'hidden' }}>
+                      {msg.senderAvatar?.image ? (
+                        <img src={msg.senderAvatar.image} alt="Sender DP" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        msg.senderAvatar?.emoji || '🐼'
+                      )}
                     </div>
                   )}
-                  <div className="message-text">{renderFormattedMessage(msg.text)}</div>
+                  <div className="message-bubble">
+                    {msg.senderId !== 'system' && (
+                      <div className="message-header">
+                        <span className="message-sender" style={{ color: getSenderColor(msg.senderName) }}>{msg.senderName}</span>
+                        <span className="message-time">{msg.timestamp}</span>
+                      </div>
+                    )}
+                    <div className="message-text">{renderFormattedMessage(msg.text)}</div>
+                  </div>
                 </div>
               ))
             )}

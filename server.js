@@ -232,6 +232,7 @@ io.on('connection', (socket) => {
         id: `${socket.id}-${Date.now()}`,
         senderId: socket.id,
         senderName: rooms[roomId].users[socket.id]?.username || 'Unknown',
+        senderAvatar: rooms[roomId].users[socket.id]?.avatar,
         text: text,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
