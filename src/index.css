@@ -2111,7 +2111,7 @@ body::after {
 
 .room-stage.fullscreen-active .reactions-quick-bar {
   position: absolute;
-  bottom: 100px;
+  bottom: 154px; /* Float safely above handle line and controls */
   left: 50%;
   transform: translateX(-50%);
   z-index: 10000;
@@ -2134,7 +2134,7 @@ body::after {
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 140px;
+  width: 240px; /* Increased from 140px */
   height: 24px;
   display: flex;
   align-items: center;
@@ -2145,8 +2145,8 @@ body::after {
 }
 
 .handle-indicator-line {
-  width: 60px;
-  height: 4px;
+  width: 240px; /* Increased from 60px */
+  height: 6px; /* Increased from 4px */
   background: var(--text-muted);
   border-radius: 99px;
   opacity: 0.6;
@@ -2156,15 +2156,15 @@ body::after {
 .fullscreen-expand-handle-line:hover .handle-indicator-line {
   opacity: 1;
   background: var(--accent-blue);
-  transform: scaleY(1.5);
+  transform: scaleY(1.3);
 }
 
 .fullscreen-expand-handle-line.active {
-  bottom: 108px; /* sits right above expanded controls bar */
+  bottom: 124px; /* Floats safely above expanded controls bar (height 84px + 24px) */
 }
 
 .fullscreen-expand-handle-line.active .handle-indicator-line {
-  width: 40px;
+  width: 180px;
   background: var(--accent-red);
 }
 

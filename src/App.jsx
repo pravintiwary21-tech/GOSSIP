@@ -191,44 +191,46 @@ function App() {
 
     let effect = null;
     try {
-      if (theme === 'dark' && window.THREE && window.VANTA && window.VANTA.GLOBE && vantaRef.current) {
-        effect = window.VANTA.GLOBE({
-          el: vantaRef.current,
-          mouseControls: true,
-          touchControls: true,
-          gyroControls: false,
-          minHeight: 200.0,
-          minWidth: 200.0,
-          scale: 1.0,
-          scaleMobile: 1.0,
-          color: 0xffffff,
-          color2: 0x6366f1,
-          size: 0.8,
-          spacing: 16.0,
-          points: 10.0,
-          maxDistance: 20.0,
-          showDots: true,
-          backgroundAlpha: 1.0,
-          backgroundColor: 0x070a13 // Sleek deep space dark mode background
-        });
-        vantaEffectRef.current = effect;
-      } else if (theme === 'light' && window.THREE && window.VANTA && window.VANTA.FOG && vantaRef.current) {
-        effect = window.VANTA.FOG({
-          el: vantaRef.current,
-          mouseControls: true,
-          touchControls: true,
-          gyroControls: false,
-          minHeight: 200.0,
-          minWidth: 200.0,
-          highlightColor: 0xffc000,
-          midtoneColor: 0xff1f00,
-          lowlightColor: 0x2d00ff,
-          baseColor: 0xfffdf5, // Warm light mode cream background
-          blurFactor: 0.6,
-          speed: 1.0,
-          zoom: 1.0
-        });
-        vantaEffectRef.current = effect;
+      if (screen === 'lobby') {
+        if (theme === 'dark' && window.THREE && window.VANTA && window.VANTA.GLOBE && vantaRef.current) {
+          effect = window.VANTA.GLOBE({
+            el: vantaRef.current,
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.0,
+            minWidth: 200.0,
+            scale: 1.0,
+            scaleMobile: 1.0,
+            color: 0xffffff,
+            color2: 0x6366f1,
+            size: 0.8,
+            spacing: 16.0,
+            points: 10.0,
+            maxDistance: 20.0,
+            showDots: true,
+            backgroundAlpha: 1.0,
+            backgroundColor: 0x070a13 // Sleek deep space dark mode background
+          });
+          vantaEffectRef.current = effect;
+        } else if (theme === 'light' && window.THREE && window.VANTA && window.VANTA.FOG && vantaRef.current) {
+          effect = window.VANTA.FOG({
+            el: vantaRef.current,
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.0,
+            minWidth: 200.0,
+            highlightColor: 0xffc000,
+            midtoneColor: 0xff1f00,
+            lowlightColor: 0x2d00ff,
+            baseColor: 0xfffdf5, // Warm light mode cream background
+            blurFactor: 0.6,
+            speed: 1.0,
+            zoom: 1.0
+          });
+          vantaEffectRef.current = effect;
+        }
       }
     } catch (err) {
       console.error("Vanta effect instantiation failed:", err);
@@ -247,7 +249,7 @@ function App() {
         vantaEffectRef.current = null;
       }
     };
-  }, [theme]);
+  }, [theme, screen]);
 
   // Active Directory for Public Rooms
   const [publicRooms, setPublicRooms] = useState([]);
@@ -1542,8 +1544,7 @@ function App() {
   // Render Room screen
   return (
     <div className={`global-app-wrapper ${theme === 'dark' ? 'dark-active' : ''}`}>
-      <div ref={vantaRef} className="vanta-bg-overlay" />
-      <div className={`app-container room-container ${showChat ? '' : 'chat-collapsed'}`}>
+      <div className={`app-container room-container ${showChat ? '' : 'chat-collapsed'} ${isFullscreen ? 'fullscreen-active' : ''}`}>
       
       {/* Toast notifications */}
       {toast.visible && (
