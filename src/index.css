@@ -1941,6 +1941,16 @@ body::after {
   margin: 0;
 }
 
+.follow-me-text {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  margin: 2px 0 6px 0;
+  text-transform: uppercase;
+}
+
 .social-links-row {
   display: flex;
   gap: 16px;
@@ -1963,10 +1973,26 @@ body::after {
 }
 
 .social-icon-link:hover {
-  color: var(--border-focus);
-  border-color: var(--border-focus);
   transform: translate(-2px, -2px);
-  box-shadow: 4px 4px 0px var(--border-focus);
+}
+
+/* Custom Social Media Hover Colors */
+.social-icon-link.github:hover {
+  color: #94a3b8;
+  border-color: #94a3b8;
+  box-shadow: 4px 4px 0px #94a3b8;
+}
+
+.social-icon-link.instagram:hover {
+  color: #e1306c;
+  border-color: #e1306c;
+  box-shadow: 4px 4px 0px #e1306c;
+}
+
+.social-icon-link.linkedin:hover {
+  color: #0077b5;
+  border-color: #0077b5;
+  box-shadow: 4px 4px 0px #0077b5;
 }
 
 /* Mobile pinned layout adjustments */

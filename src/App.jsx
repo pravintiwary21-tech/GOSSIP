@@ -1508,14 +1508,15 @@ function App() {
         </div>
         <footer className="lobby-footer">
           <p className="made-by-text">Made By Pravin</p>
+          <p className="follow-me-text">FOLLOW ME</p>
           <div className="social-links-row">
-            <a href="https://github.com/pravintiwary21-tech" target="_blank" rel="noopener noreferrer" title="GitHub" className="social-icon-link">
+            <a href="https://github.com/pravintiwary21-tech" target="_blank" rel="noopener noreferrer" title="GitHub" className="social-icon-link github">
               <Github size={20} />
             </a>
-            <a href="https://www.instagram.com/pravin_x" target="_blank" rel="noopener noreferrer" title="Instagram" className="social-icon-link">
+            <a href="https://www.instagram.com/pravin_x" target="_blank" rel="noopener noreferrer" title="Instagram" className="social-icon-link instagram">
               <Instagram size={20} />
             </a>
-            <a href="https://www.linkedin.com/in/pravin-kumar-tiwary-ab15a636b" target="_blank" rel="noopener noreferrer" title="LinkedIn" className="social-icon-link">
+            <a href="https://www.linkedin.com/in/pravin-kumar-tiwary-ab15a636b" target="_blank" rel="noopener noreferrer" title="LinkedIn" className="social-icon-link linkedin">
               <Linkedin size={20} />
             </a>
           </div>
