@@ -2236,12 +2236,8 @@ body::after {
   height: 100vh;
   z-index: -2; /* Sits behind body blobs and cards */
   pointer-events: none; /* Let clicks pass through */
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-}
-
-.global-app-wrapper.dark-active .vanta-bg-overlay {
   opacity: 1;
+  transition: opacity 0.5s ease-in-out;
 }
 
 

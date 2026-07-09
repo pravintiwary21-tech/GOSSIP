@@ -174,35 +174,54 @@ function App() {
   const [forceFullscreenControls, setForceFullscreenControls] = useState(false);
   const stageRef = useRef(null);
 
-  // Vanta.js 3D Globe Background Effect
+  // Vanta.js 3D Background Effect (Globe in dark mode, Fog in light mode)
   const [vantaEffect, setVantaEffect] = useState(null);
   const vantaRef = useRef(null);
 
   useEffect(() => {
     let effect = null;
-    if (theme === 'dark' && window.THREE && window.VANTA && window.VANTA.GLOBE && vantaRef.current) {
+    if (window.THREE && window.VANTA && vantaRef.current) {
       if (!vantaEffect) {
         try {
-          effect = window.VANTA.GLOBE({
-            el: vantaRef.current,
-            mouseControls: true,
-            touchControls: true,
-            gyroControls: false,
-            minHeight: 200.0,
-            minWidth: 200.0,
-            scale: 1.0,
-            scaleMobile: 1.0,
-            color: 0xffffff,
-            color2: 0x6366f1,
-            size: 0.8,
-            spacing: 16.0,
-            points: 10.0,
-            maxDistance: 20.0,
-            showDots: true,
-            backgroundAlpha: 1.0,
-            backgroundColor: 0x070a13 // Sleek deep space dark mode background
-          });
-          setVantaEffect(effect);
+          if (theme === 'dark' && window.VANTA.GLOBE) {
+            effect = window.VANTA.GLOBE({
+              el: vantaRef.current,
+              mouseControls: true,
+              touchControls: true,
+              gyroControls: false,
+              minHeight: 200.0,
+              minWidth: 200.0,
+              scale: 1.0,
+              scaleMobile: 1.0,
+              color: 0xffffff,
+              color2: 0x6366f1,
+              size: 0.8,
+              spacing: 16.0,
+              points: 10.0,
+              maxDistance: 20.0,
+              showDots: true,
+              backgroundAlpha: 1.0,
+              backgroundColor: 0x070a13 // Sleek deep space dark mode background
+            });
+            setVantaEffect(effect);
+          } else if (theme === 'light' && window.VANTA.FOG) {
+            effect = window.VANTA.FOG({
+              el: vantaRef.current,
+              mouseControls: true,
+              touchControls: true,
+              gyroControls: false,
+              minHeight: 200.0,
+              minWidth: 200.0,
+              highlightColor: 0xffffff,
+              midtoneColor: 0xfef3c7,
+              lowlightColor: 0xdbeafe,
+              baseColor: 0xfffdf5, // Warm cream bright mode background
+              blurFactor: 0.6,
+              speed: 1.5,
+              zoom: 1.0
+            });
+            setVantaEffect(effect);
+          }
         } catch (err) {
           console.error("Vanta initialization failed:", err);
         }
