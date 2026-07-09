@@ -1024,9 +1024,8 @@ function App() {
 
   // Toggle fullscreen mode
   const toggleFullscreen = () => {
-    if (!stageRef.current) return;
     if (!document.fullscreenElement) {
-      stageRef.current.requestFullscreen().then(() => {
+      document.documentElement.requestFullscreen().then(() => {
         setIsFullscreen(true);
       }).catch(err => {
         console.error("Error enabling fullscreen:", err);
@@ -1036,6 +1035,20 @@ function App() {
       setIsFullscreen(false);
     }
   };
+
+  // Sync state if user exits fullscreen via ESC key
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+      if (!document.fullscreenElement) {
+        setForceFullscreenControls(false);
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
 
   // Toggle pinned participant
   const handleTogglePin = (id) => {
@@ -1762,13 +1775,13 @@ function App() {
       {/* Center stage area */}
       <main className={`room-stage ${isFullscreen ? 'fullscreen-active' : ''} ${forceFullscreenControls ? 'controls-forced' : ''}`} ref={stageRef}>
         {isFullscreen && (
-          <button
+          <div
+            className={`fullscreen-expand-handle-line ${forceFullscreenControls ? 'active' : ''}`}
             onClick={() => setForceFullscreenControls(prev => !prev)}
-            className={`fullscreen-options-toggle ${forceFullscreenControls ? 'active' : ''}`}
-            title="Toggle Controls Panel"
+            title={forceFullscreenControls ? "Hide Options" : "Show Options"}
           >
-            <MoreVertical size={20} />
-          </button>
+            <div className="handle-indicator-line" />
+          </div>
         )}
         <header className="stage-header">
           <div className="mode-badge">
