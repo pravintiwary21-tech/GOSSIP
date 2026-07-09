@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <!-- Background glow (subtle) -->
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#fffbeb" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#fffbeb" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#1e293b" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Left Bubble: Sky Blue -->
+  <path d="M 45 30 
+           C 25 30, 15 42, 15 58 
+           C 15 70, 22 80, 32 84 
+           L 27 98 
+           L 46 90 
+           C 49 91, 52 91, 55 91 
+           C 40 85, 36 72, 36 58 
+           C 36 42, 45 30, 65 30 
+           Z" 
+        fill="#3b82f6" 
+        filter="url(#shadow)" />
+
+  <!-- Right Bubble: Fcinq Coral/Red -->
+  <path d="M 75 30 
+           C 55 30, 42 42, 42 58 
+           C 42 74, 55 86, 75 86 
+           C 79 86, 85 85, 90 83 
+           L 99 92 
+           L 94 77 
+           C 99 73, 105 65, 105 54 
+           C 105 38, 92 30, 75 30 
+           Z" 
+        fill="#f43f5e" 
+        filter="url(#shadow)" />
+
+  <!-- Jolly Face Features on Right Bubble -->
+  <!-- Eyes: Sunny Yellow -->
+  <circle cx="66" cy="52" r="4.5" fill="#facc15" />
+  <circle cx="82" cy="52" r="4.5" fill="#facc15" />
+  
+  <!-- Smile: Sunny Yellow -->
+  <path d="M 70 63 C 72 67, 76 67, 78 63" 
+        stroke="#facc15" 
+        stroke-width="3" 
+        stroke-linecap="round" 
+        fill="none" />
+</svg>
